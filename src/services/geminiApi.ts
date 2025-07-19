@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
+import { GoogleGenerativeAI } from "@google/generative-ai"; // Keep if you still need types, but the direct usage will be removed.
 
 interface AnalysisResponse {
   result: string;
@@ -7,71 +7,54 @@ interface AnalysisResponse {
   error?: string;
 }
 
-// Replace this with your actual Gemini API key
-const API_KEY = GEMINI_API_KEY;
-const genAI = new GoogleGenerativeAI(API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+// REMOVED HARDCODED API KEY AND DIRECT GEMINI CLIENT INITIALIZATION
+// const API_KEY = "AIzaSyAdyN09Y30-aznrohcmIqK5OuHQGgFrSh4";
+// const genAI = new GoogleGenerativeAI(API_KEY);
+// const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
+// Modify analyzeImage to call your backend /api/analyze-image endpoint
 export async function analyzeImage(imageData: string): Promise<AnalysisResponse> {
   try {
-    const base64Data = imageData.split(",")[1];
+    // Frontend sends the imageData (base64) to your backend
+    const response = await fetch("http://localhost:5000/api/analyze-image", { //
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ imageData }), // Send the image data to the backend
+    });
 
-    const prompt = `You are an AI assistant designed to explain medicine prescriptions or medical reports in the simplest and most understandable way possible, especially for individuals with limited education or literacy.
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || "Failed to analyze image via backend"); // Use error from backend
+    }
 
-Analyze the image of medicine or prescription and provide information in THREE languages: English, Tamil, and Hindi. For each language, focus on:
-1. The name of the medicine or test shown in the image
-2. What the medicine is used for, or what the test measures
-3. Important information about usage or purpose
-
-Write in simple, direct language that anyone can understand. Avoid medical jargon. Format your response EXACTLY as follows:
-
-ENGLISH:
-[Your English analysis here]
-
-TAMIL:
-[Your Tamil analysis here - write in Tamil script]
-
-HINDI:
-[Your Hindi analysis here - write in Devanagari script]
-
-Remember to emphasize that this is general information only and not a substitute for a doctor's advice in all three languages.`;
-
-
-    const result = await model.generateContent([
-      { inlineData: { mimeType: "image/jpeg", data: base64Data } },
-      prompt
-    ]);
-
-    const text = result.response.text();
-    const { english, tamil, hindi } = parseMultiLanguageResponse(text);
-
-    return {
-      result: english,
-      tamilResult: tamil,
-      hindiResult: hindi
-    };
+    // The backend will return the parsed response
+    return await response.json();
 
   } catch (error) {
-    console.error("Error analyzing image:", error);
+    console.error("Error analyzing image (frontend call to backend):", error);
     return {
       result: "Analysis failed. Please check the image and try again.",
       tamilResult: "பகுப்பாய்வு தோல்வியடைந்தது. படத்தைச் சரிபார்த்து மீண்டும் முயற்சிக்கவும்.",
       hindiResult: "विश्लेषण असफल। कृपया छवि की जांच करें और पुनः प्रयास करें।",
-      error: error instanceof Error ? error.message : "Unknown error"
+      error: error instanceof Error ? error.message : "Unknown error on frontend"
     };
   }
 }
 
-function parseMultiLanguageResponse(response: string): { english: string; tamil: string; hindi: string } {
-  const sections = response.split(/(?:ENGLISH:|TAMIL:|HINDI:)/).map(s => s.trim());
-  return {
-    english: sections[1] || "Analysis not available in English",
-    tamil: sections[2] || "தமிழில் பகுப்பாய்வு கிடைக்கவில்லை",
-    hindi: sections[3] || "हिंदी में विश्लेषण उपलब्ध नहीं है"
-  };
-}
+// This function is no longer needed in the frontend as parsing happens on backend
+// function parseMultiLanguageResponse(response: string): { english: string; tamil: string; hindi: string } {
+//   const sections = response.split(/(?:ENGLISH:|TAMIL:|HINDI:)/).map(s => s.trim());
+//   return {
+//     english: sections[1] || "Analysis not available in English",
+//     tamil: sections[2] || "தமிழில் பகுப்பாய்வு கிடைக்கவில்லை",
+//     hindi: sections[3] || "हिंदी में विश्लेषण उपलब्ध नहीं है"
+//   };
+// }
 
 
+// Keep getGeminiResponse as it already correctly calls the backend
 export async function getGeminiResponse(userMessage: string): Promise<string> {
   try {
     const response = await fetch("http://localhost:5000/api/chat", {
@@ -80,12 +63,20 @@ export async function getGeminiResponse(userMessage: string): Promise<string> {
       body: JSON.stringify({ userMessage })
     });
 
-    if (!response.ok) throw new Error("Failed to connect to Gemini API");
+    if (!response.ok) {
+        // Parse error from backend if available
+        const errorBody = await response.json();
+        throw new Error(errorBody.error || "Failed to connect to backend chat API");
+    }
+
 
     const data = await response.json();
-    return data.response;
+    // Assuming backend returns { result, tamilResult, hindiResult, timestamp }
+    // You might want to return a more structured object or just the English result for simplicity here.
+    // Based on your server.mjs, data.response is not directly returned, but data.result
+    return data.result; // Return the English result or modify as needed
   } catch (err) {
-    console.error("Gemini API error:", err);
+    console.error("Gemini API (via backend) error:", err);
     throw err;
   }
 }
