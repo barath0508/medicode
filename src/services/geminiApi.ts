@@ -1,4 +1,3 @@
-
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Keep if you still need types, but the direct usage will be removed.
 
@@ -9,11 +8,10 @@ interface AnalysisResponse {
   error?: string;
 }
 
-
 export async function analyzeImage(imageData: string): Promise<AnalysisResponse> {
   try {
     // Frontend sends the imageData (base64) to your backend
-    const response = await fetch("http://localhost:5000/api/analyze-image", { //
+    const response = await fetch(`${BACKEND_URL}/api/analyze-image`, { // <-- USE BACKEND_URL HERE
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -43,7 +41,7 @@ export async function analyzeImage(imageData: string): Promise<AnalysisResponse>
 // Keep getGeminiResponse as it already correctly calls the backend
 export async function getGeminiResponse(userMessage: string): Promise<string> {
   try {
-    const response = await fetch("http://localhost:5000/api/chat", {
+    const response = await fetch(`${BACKEND_URL}/api/chat`, { // <-- USE BACKEND_URL HERE
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ userMessage })
@@ -54,7 +52,6 @@ export async function getGeminiResponse(userMessage: string): Promise<string> {
         const errorBody = await response.json();
         throw new Error(errorBody.error || "Failed to connect to backend chat API");
     }
-
 
     const data = await response.json();
     // Assuming backend returns { result, tamilResult, hindiResult, timestamp }
