@@ -1,3 +1,5 @@
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Keep if you still need types, but the direct usage will be removed.
 
 interface AnalysisResponse {
@@ -7,12 +9,7 @@ interface AnalysisResponse {
   error?: string;
 }
 
-// REMOVED HARDCODED API KEY AND DIRECT GEMINI CLIENT INITIALIZATION
-// const API_KEY = "AIzaSyAdyN09Y30-aznrohcmIqK5OuHQGgFrSh4";
-// const genAI = new GoogleGenerativeAI(API_KEY);
-// const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-// Modify analyzeImage to call your backend /api/analyze-image endpoint
 export async function analyzeImage(imageData: string): Promise<AnalysisResponse> {
   try {
     // Frontend sends the imageData (base64) to your backend
@@ -42,17 +39,6 @@ export async function analyzeImage(imageData: string): Promise<AnalysisResponse>
     };
   }
 }
-
-// This function is no longer needed in the frontend as parsing happens on backend
-// function parseMultiLanguageResponse(response: string): { english: string; tamil: string; hindi: string } {
-//   const sections = response.split(/(?:ENGLISH:|TAMIL:|HINDI:)/).map(s => s.trim());
-//   return {
-//     english: sections[1] || "Analysis not available in English",
-//     tamil: sections[2] || "தமிழில் பகுப்பாய்வு கிடைக்கவில்லை",
-//     hindi: sections[3] || "हिंदी में विश्लेषण उपलब्ध नहीं है"
-//   };
-// }
-
 
 // Keep getGeminiResponse as it already correctly calls the backend
 export async function getGeminiResponse(userMessage: string): Promise<string> {
