@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Send, Bot, User, Loader2, Heart, Brain, Pill, Activity } from 'lucide-react';
 import useTranslation from '../hooks/useTranslation';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 
 interface Message {
   id: string;
@@ -46,7 +47,7 @@ export default function MedicalChatbot({ selectedLanguage }: MedicalChatbotProps
     setIsTyping(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/chat', {
+      const response = await fetch(`${BACKEND_URL}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userMessage: userMessage.text })
