@@ -1,21 +1,19 @@
+// backend/package.json
 {
-  "name": "medical-chatbot-backend",
+  "name": "medicode-backend",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "description": "Backend for Medicode application",
+  "main": "server.mjs",
+  "type": "module",  "scripts": {
+    "start": "node server.mjs",
+    "dev": "node server.mjs"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
-    "@google/generative-ai": "^0.24.1",
-    "body-parser": "^2.2.0",
-    "cors": "^2.8.5",
-    "dotenv": "^17.2.0",
-    "express": "^5.1.0",
-    "node-fetch": "^3.3.2"
+    "express": "^4.x.x",
+    "cors": "^2.x.x",
+    "body-parser": "^1.x.x",
+    "@google/generative-ai": "^0.x.x",
+    "dotenv": "^16.x.x",
+    "node-fetch": "^3.x.x" 
   }
 }
