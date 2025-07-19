@@ -1,4 +1,4 @@
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
 import { GoogleGenerativeAI } from "@google/generative-ai"; // Keep if you still need types, but the direct usage will be removed.
 
 interface AnalysisResponse {
