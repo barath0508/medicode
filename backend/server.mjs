@@ -21,7 +21,9 @@ if (!API_KEY) {
 const genAI = new GoogleGenerativeAI(API_KEY);
 const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://medicode.netlify.app' // Replace with your actual frontend domain
+}));
 
 // Configure bodyParser.json() to accept a larger payload size
 // For example, to accept up to 50MB (adjust as needed based on your expected image sizes)
